@@ -1,0 +1,17 @@
+# Dependencies
+node_modules/
+
+# Secrets — never commit real keys
+.env
+.env.*
+!.env.example
+
+# Netlify
+.netlify/
+
+# Editor / tooling
+.claude/
+.agents/
+skills-lock.json
+.DS_Store
+*.log

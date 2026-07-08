@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#6b10ff" />
+  <title>LivU · Coin Yükle</title>
+  <meta name="description" content="LivU coin paketlerini güvenli kredi/banka kartı ile saniyeler içinde yükle. Be lively & Be happy." />
+  <link rel="icon" href="assets/coin.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="aurora" aria-hidden="true">
+    <span class="blob b1"></span>
+    <span class="blob b2"></span>
+    <span class="blob b3"></span>
+  </div>
+
+  <div class="shell">
+    <!-- Top bar -->
+    <header class="topbar">
+      <img class="brand-logo" src="assets/livu-logo.svg" alt="LivU" />
+      <button class="ghost-btn lang-btn" id="langBtn" type="button" aria-haspopup="true">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 2.5 15.4 0 18M12 3c-2.5 2.6-2.5 15.4 0 18"/></svg>
+        <span>Türkçe</span>
+      </button>
+    </header>
+
+    <p class="tagline">Be lively &amp; Be happy</p>
+
+    <!-- Account / ID -->
+    <section class="card account-card">
+      <label class="field-label" for="livuId">LivU ID’niz</label>
+      <div class="id-row">
+        <div class="id-input">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>
+          <input id="livuId" type="text" inputmode="numeric" autocomplete="off" placeholder="ID’nizi girin" />
+        </div>
+        <span class="or-chip">veya</span>
+        <button class="solid-btn small" id="loginBtn" type="button">Giriş Yap</button>
+      </div>
+      <button class="link-btn" id="orderHistoryBtn" type="button">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3h18v14H3z"/><path d="M7 8h10M7 12h6"/></svg>
+        Sipariş Geçmişi
+      </button>
+    </section>
+
+    <!-- Step 1: packages -->
+    <section class="card">
+      <div class="step-head">
+        <span class="step-num">1</span>
+        <div>
+          <h2>Coin paketini seçin</h2>
+          <p class="muted">Madeni para paketi</p>
+        </div>
+      </div>
+      <ul class="pack-grid" id="packGrid" role="listbox" aria-label="Coin paketleri"></ul>
+    </section>
+
+    <!-- Step 2: payment -->
+    <section class="card">
+      <div class="step-head">
+        <span class="step-num">2</span>
+        <div>
+          <h2>Ödeme yöntemi</h2>
+          <p class="muted">Güvenli kart ile ödeme</p>
+        </div>
+      </div>
+
+      <div class="pay-method selected" id="cardMethod">
+        <div class="pm-icon">
+          <img src="assets/visa.svg" alt="Visa" />
+          <img src="assets/mastercard.svg" alt="Mastercard" />
+        </div>
+        <div class="pm-body">
+          <strong>Kredi / Banka Kartı</strong>
+          <span class="muted">Visa &amp; Mastercard · Stripe ile güvenli</span>
+        </div>
+        <svg class="pm-check" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg>
+      </div>
+
+      <div class="secure-row">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+        256-bit SSL şifreleme · Kart bilgileriniz Stripe tarafından işlenir, bizde saklanmaz.
+      </div>
+    </section>
+
+    <div class="spacer"></div>
+  </div>
+
+  <!-- Sticky checkout bar -->
+  <div class="checkout-bar" id="checkoutBar">
+    <div class="checkout-inner">
+      <div class="checkout-summary">
+        <span class="muted small">Ödenecek tutar</span>
+        <strong id="totalPrice">₺0,00</strong>
+        <span class="coin-hint" id="coinHint"></span>
+      </div>
+      <button class="solid-btn pay-btn" id="payBtn" type="button" disabled>
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+        Kartla Öde
+      </button>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <button class="support-btn" id="supportBtn" type="button">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      Müşteri Hizmetleri
+    </button>
+
+    <div class="footer-links">
+      <a href="terms.html">Hizmet Koşulları</a>
+      <span class="dot">·</span>
+      <a href="privacy.html">Gizlilik Politikası</a>
+    </div>
+
+    <div class="card-brands">
+      <img src="assets/visa.svg" alt="Visa" />
+      <img src="assets/mastercard.svg" alt="Mastercard" />
+    </div>
+
+    <p class="copyright">© <span id="year"></span> LivU · Clash Arts (HK) Limited. Tüm hakları saklıdır.</p>
+  </footer>
+
+  <!-- Customer service modal -->
+  <div class="modal-overlay" id="supportModal" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="supportTitle">
+      <button class="modal-close" id="supportClose" type="button" aria-label="Kapat">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6 6 18"/></svg>
+      </button>
+      <div class="modal-head">
+        <img class="modal-logo" src="assets/livu-logo.svg" alt="LivU" />
+        <h3 id="supportTitle">Müşteri Hizmetleri</h3>
+        <p class="muted">Sorununuzu iletin, en kısa sürede dönüş yapalım.</p>
+      </div>
+
+      <form id="supportForm" class="support-form" novalidate>
+        <div class="grid-2">
+          <div class="form-field">
+            <label for="firstName">İsim</label>
+            <input id="firstName" name="firstName" type="text" required autocomplete="given-name" />
+          </div>
+          <div class="form-field">
+            <label for="lastName">Soyisim</label>
+            <input id="lastName" name="lastName" type="text" required autocomplete="family-name" />
+          </div>
+        </div>
+        <div class="grid-2">
+          <div class="form-field">
+            <label for="email">E-posta</label>
+            <input id="email" name="email" type="email" required autocomplete="email" placeholder="ornek@mail.com" />
+          </div>
+          <div class="form-field">
+            <label for="phone">Telefon</label>
+            <input id="phone" name="phone" type="tel" required autocomplete="tel" placeholder="+90 5xx xxx xx xx" />
+          </div>
+        </div>
+        <div class="grid-2">
+          <div class="form-field">
+            <label for="accountInfo">Hesap Bilgisi (LivU ID)</label>
+            <input id="accountInfo" name="accountInfo" type="text" placeholder="LivU ID veya e-posta" />
+          </div>
+          <div class="form-field">
+            <label for="transactionId">İşlem ID</label>
+            <input id="transactionId" name="transactionId" type="text" placeholder="Varsa işlem numarası" />
+          </div>
+        </div>
+        <div class="form-field">
+          <label for="issue">Sorununuzun tanımı</label>
+          <textarea id="issue" name="issue" rows="4" required placeholder="Yaşadığınız sorunu ayrıntılı açıklayın..."></textarea>
+        </div>
+        <p class="form-status" id="formStatus" role="status"></p>
+        <button class="solid-btn full" type="submit" id="supportSubmit">Gönder</button>
+        <p class="muted tiny center">Bize doğrudan <a href="mailto:customer.service@livuchat.com">customer.service@livuchat.com</a> adresinden de ulaşabilirsiniz.</p>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast" hidden></div>
+
+  <script src="app.js"></script>
+</body>
+</html>

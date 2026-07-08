@@ -1,0 +1,16 @@
+{
+  "name": "livu-topup",
+  "version": "1.0.0",
+  "description": "LivU coin top-up — card-only Stripe (TRY) checkout with a modern mobile-first UI.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "netlify:dev": "netlify dev"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "stripe": "^16.2.0"
+  }
+}
