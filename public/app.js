@@ -85,7 +85,8 @@ let toastTimer;
 function showToast(msg) {
   toast.textContent = msg;
   toast.hidden = false;
-  requestAnimationFrame(() => toast.classList.add("show"));
+  void toast.offsetWidth; // force reflow so the transition always runs
+  toast.classList.add("show");
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => {
     toast.classList.remove("show");
@@ -93,7 +94,39 @@ function showToast(msg) {
   }, 3200);
 }
 
-/* ---------- Pay (Stripe Checkout) ---------- */
+/* ---------- Pay (Stripe Embedded Checkout) ---------- */
+const checkoutModal = document.getElementById("checkoutModal");
+const checkoutSummaryLine = document.getElementById("checkoutSummaryLine");
+let stripeInstance = null;
+let embeddedCheckout = null;
+
+async function getStripe() {
+  if (stripeInstance) return stripeInstance;
+  if (!window.Stripe) throw new Error("Stripe.js yüklenemedi.");
+  const res = await fetch("/api/config");
+  const cfg = await res.json().catch(() => ({}));
+  if (!cfg.publishableKey) throw new Error("Stripe publishable key ayarlı değil (STRIPE_PUBLISHABLE_KEY).");
+  stripeInstance = window.Stripe(cfg.publishableKey);
+  return stripeInstance;
+}
+
+function openCheckoutModal() {
+  if (selected && checkoutSummaryLine) {
+    checkoutSummaryLine.textContent = `${num.format(selected.amount)} coin · ${tl.format(selected.price)}`;
+  }
+  checkoutModal.hidden = false;
+  document.body.style.overflow = "hidden";
+}
+
+function closeCheckoutModal() {
+  checkoutModal.hidden = true;
+  document.body.style.overflow = "";
+  if (embeddedCheckout) {
+    try { embeddedCheckout.destroy(); } catch (e) {}
+    embeddedCheckout = null;
+  }
+}
+
 payBtn.addEventListener("click", async () => {
   if (!selected) return;
   const livuId = document.getElementById("livuId").value.trim();
@@ -108,35 +141,42 @@ payBtn.addEventListener("click", async () => {
   payBtn.innerHTML = "İşleniyor…";
 
   try {
-    // Backend creates a Stripe Checkout Session in TRY and returns { url }.
-    // See server.js for the reference implementation.
-    const res = await fetch("/api/create-checkout-session", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        packageId: selected.id,
-        livuId,
-        amount: selected.amount,
-        price: selected.price,
-        currency: "try",
-      }),
-    });
-    const data = await res.json().catch(() => ({}));
-    if (!res.ok) throw new Error(data.error || "Ödeme oturumu oluşturulamadı.");
-    if (data.url) {
-      window.location.href = data.url; // redirect to Stripe-hosted card page
-    } else {
-      throw new Error("Ödeme bağlantısı alınamadı.");
-    }
+    const stripe = await getStripe();
+    openCheckoutModal();
+
+    // The backend creates an embedded Checkout Session (card-only, TRY) and
+    // returns its client_secret. Stripe mounts the payment form on this page.
+    const fetchClientSecret = async () => {
+      const res = await fetch("/api/create-checkout-session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ packageId: selected.id, livuId }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || "Ödeme oturumu oluşturulamadı.");
+      return data.clientSecret;
+    };
+
+    embeddedCheckout = await stripe.initEmbeddedCheckout({ fetchClientSecret });
+    embeddedCheckout.mount("#checkout");
   } catch (err) {
-    // Show the real reason (e.g. missing API key) to make setup easier.
+    closeCheckoutModal();
     const msg = /Failed to fetch|NetworkError/i.test(err.message)
       ? "Backend çalışmıyor. Stripe için `npm start` ile server.js’i başlatın."
       : err.message;
     showToast(msg);
+  } finally {
     payBtn.disabled = false;
     payBtn.innerHTML = original;
   }
+});
+
+document.getElementById("checkoutClose").addEventListener("click", closeCheckoutModal);
+checkoutModal.addEventListener("click", (e) => {
+  if (e.target === checkoutModal) closeCheckoutModal();
+});
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && !checkoutModal.hidden) closeCheckoutModal();
 });
 
 /* ---------- Misc buttons ---------- */

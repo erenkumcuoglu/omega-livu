@@ -48,6 +48,12 @@ app.post("/api/webhook", express.raw({ type: "application/json" }), (req, res) =
 app.use(express.json());
 app.use(express.static(PUBLIC_DIR));
 
+// Publishable key for the client (safe to expose). Empty unless a real pk_ is set.
+app.get("/api/config", (req, res) => {
+  const pk = process.env.STRIPE_PUBLISHABLE_KEY || "";
+  res.json({ publishableKey: pk.startsWith("pk_") ? pk : "" });
+});
+
 app.post("/api/create-checkout-session", async (req, res) => {
   try {
     const key = process.env.STRIPE_SECRET_KEY;
@@ -61,6 +67,7 @@ app.post("/api/create-checkout-session", async (req, res) => {
 
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
+      ui_mode: "embedded", // renders inside our page
       payment_method_types: ["card"], // card-only
       line_items: [
         {
@@ -76,14 +83,32 @@ app.post("/api/create-checkout-session", async (req, res) => {
         },
       ],
       metadata: { packageId, livuId, coins: String(pkg.amount) },
-      success_url: `${DOMAIN}/index.html?status=success`,
-      cancel_url: `${DOMAIN}/index.html?status=cancel`,
+      return_url: `${DOMAIN}/return.html?session_id={CHECKOUT_SESSION_ID}`,
     });
 
-    res.json({ url: session.url });
+    res.json({ clientSecret: session.client_secret });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Ödeme oturumu oluşturulamadı." });
+  }
+});
+
+// Return page queries this to show the payment result.
+app.get("/api/session-status", async (req, res) => {
+  try {
+    const key = process.env.STRIPE_SECRET_KEY;
+    if (!key || !key.startsWith("sk_")) {
+      return res.status(500).json({ error: "STRIPE_SECRET_KEY ayarlı değil." });
+    }
+    const session = await stripe.checkout.sessions.retrieve(req.query.session_id);
+    res.json({
+      status: session.status,
+      payment_status: session.payment_status,
+      coins: session.metadata?.coins || null,
+      livuId: session.metadata?.livuId || null,
+    });
+  } catch (err) {
+    res.status(500).json({ error: "Oturum durumu alınamadı." });
   }
 });
 

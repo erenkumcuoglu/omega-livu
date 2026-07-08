@@ -181,9 +181,29 @@
     </div>
   </div>
 
+  <!-- Embedded Checkout modal -->
+  <div class="modal-overlay" id="checkoutModal" hidden>
+    <div class="modal checkout-modal" role="dialog" aria-modal="true" aria-labelledby="checkoutTitle">
+      <button class="modal-close" id="checkoutClose" type="button" aria-label="Kapat">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6 6 18"/></svg>
+      </button>
+      <div class="modal-head">
+        <img class="modal-logo" src="assets/livu-logo.svg" alt="LivU" />
+        <h3 id="checkoutTitle">Güvenli Ödeme</h3>
+        <p class="muted" id="checkoutSummaryLine"></p>
+      </div>
+      <div id="checkout"><!-- Stripe Embedded Checkout mounts here --></div>
+      <p class="muted tiny center secure-note">
+        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" style="vertical-align:-1px"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+        Ödeme Stripe tarafından güvenle işlenir.
+      </p>
+    </div>
+  </div>
+
   <!-- Toast -->
   <div class="toast" id="toast" hidden></div>
 
+  <script src="https://js.stripe.com/v3/"></script>
   <script src="app.js"></script>
 </body>
 </html>

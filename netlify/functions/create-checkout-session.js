@@ -23,13 +23,14 @@ exports.handler = async (event) => {
     if (!pkg) return json(400, { error: "Geçersiz paket." });
     if (!livuId) return json(400, { error: "LivU ID gerekli." });
 
-    // Build absolute redirect URLs from the incoming request origin.
+    // Build absolute return URL from the incoming request origin.
     const origin =
       event.headers.origin ||
       (event.headers.host ? `https://${event.headers.host}` : process.env.PUBLIC_URL || "");
 
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
+      ui_mode: "embedded", // renders inside our page
       payment_method_types: ["card"],
       line_items: [
         {
@@ -45,11 +46,10 @@ exports.handler = async (event) => {
         },
       ],
       metadata: { packageId, livuId, coins: String(pkg.amount) },
-      success_url: `${origin}/index.html?status=success`,
-      cancel_url: `${origin}/index.html?status=cancel`,
+      return_url: `${origin}/return.html?session_id={CHECKOUT_SESSION_ID}`,
     });
 
-    return json(200, { url: session.url });
+    return json(200, { clientSecret: session.client_secret });
   } catch (err) {
     console.error(err);
     return json(500, { error: "Ödeme oturumu oluşturulamadı." });

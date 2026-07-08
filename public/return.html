@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#6b10ff" />
+  <title>LivU · Ödeme Sonucu</title>
+  <link rel="icon" href="assets/coin.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="aurora" aria-hidden="true"><span class="blob b1"></span><span class="blob b2"></span></div>
+
+  <div class="result-shell">
+    <div class="result-card" id="resultCard">
+      <div class="result-icon spin" id="resultIcon">
+        <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M21 12a9 9 0 1 1-6.2-8.6"/></svg>
+      </div>
+      <h1 id="resultTitle">Ödeme kontrol ediliyor…</h1>
+      <p class="muted" id="resultText">Lütfen bekleyin.</p>
+      <div class="result-detail" id="resultDetail" hidden></div>
+      <a class="solid-btn full" href="index.html" id="resultBack" style="margin-top:20px;display:none">Ana sayfaya dön</a>
+    </div>
+  </div>
+
+  <script>
+    (async () => {
+      const params = new URLSearchParams(window.location.search);
+      const sessionId = params.get("session_id");
+      const icon = document.getElementById("resultIcon");
+      const title = document.getElementById("resultTitle");
+      const text = document.getElementById("resultText");
+      const detail = document.getElementById("resultDetail");
+      const back = document.getElementById("resultBack");
+      const tl = new Intl.NumberFormat("tr-TR");
+
+      const setState = (state, headline, body) => {
+        icon.classList.remove("spin");
+        icon.className = "result-icon " + state;
+        icon.innerHTML =
+          state === "ok"
+            ? '<svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M20 6 9 17l-5-5"/></svg>'
+            : '<svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M6 6l12 12M18 6 6 18"/></svg>';
+        title.textContent = headline;
+        text.textContent = body;
+        back.style.display = "inline-flex";
+      };
+
+      if (!sessionId) {
+        setState("err", "Geçersiz istek", "Oturum bilgisi bulunamadı.");
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/session-status?session_id=${encodeURIComponent(sessionId)}`);
+        const data = await res.json();
+        if (!res.ok) {
+          setState("err", "Durum alınamadı", data.error || "Bir sorun oluştu. Lütfen tekrar deneyin.");
+        } else if (data.status === "complete") {
+          setState("ok", "Ödeme başarılı! 🎉", "Coin’leriniz hesabınıza tanımlanıyor.");
+          if (data.coins) {
+            detail.hidden = false;
+            detail.innerHTML = `<strong>${tl.format(Number(data.coins))} coin</strong>${data.livuId ? ` · LivU ID: ${data.livuId}` : ""}`;
+          }
+        } else {
+          setState("err", "Ödeme tamamlanmadı", "İşlem iptal edildi veya başarısız oldu. Tekrar deneyebilirsiniz.");
+        }
+      } catch (err) {
+        setState("err", "Durum alınamadı", "Bir sorun oluştu. Lütfen tekrar deneyin.");
+      }
+    })();
+  </script>
+</body>
+</html>
