@@ -136,6 +136,17 @@ payBtn.addEventListener("click", async () => {
     return;
   }
 
+  const consent = document.getElementById("consentCheck");
+  if (!consent.checked) {
+    showToast("Devam etmek için iade koşullarını kabul edin.");
+    const box = document.getElementById("consentBox");
+    box.scrollIntoView({ behavior: "smooth", block: "center" });
+    box.classList.add("shake");
+    setTimeout(() => box.classList.remove("shake"), 700);
+    return;
+  }
+  const consentAt = new Date().toISOString();
+
   payBtn.disabled = true;
   const original = payBtn.innerHTML;
   payBtn.innerHTML = "İşleniyor…";
@@ -150,7 +161,7 @@ payBtn.addEventListener("click", async () => {
       const res = await fetch("/api/create-checkout-session", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ packageId: selected.id, livuId }),
+        body: JSON.stringify({ packageId: selected.id, livuId, consent: true, consentAt }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.error || "Ödeme oturumu oluşturulamadı.");

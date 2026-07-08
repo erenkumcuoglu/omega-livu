@@ -60,10 +60,11 @@ app.post("/api/create-checkout-session", async (req, res) => {
     if (!key || !key.startsWith("sk_")) {
       return res.status(500).json({ error: ".env içine geçerli STRIPE_SECRET_KEY (sk_test_...) ekleyin." });
     }
-    const { packageId, livuId } = req.body;
+    const { packageId, livuId, consent, consentAt } = req.body;
     const pkg = PACKAGES[packageId];
     if (!pkg) return res.status(400).json({ error: "Geçersiz paket." });
     if (!livuId) return res.status(400).json({ error: "LivU ID gerekli." });
+    if (consent !== true) return res.status(400).json({ error: "İade koşulları kabul edilmedi." });
 
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
@@ -82,7 +83,13 @@ app.post("/api/create-checkout-session", async (req, res) => {
           quantity: 1,
         },
       ],
-      metadata: { packageId, livuId, coins: String(pkg.amount) },
+      metadata: {
+        packageId,
+        livuId,
+        coins: String(pkg.amount),
+        consent: "accepted",
+        consent_at: consentAt || new Date().toISOString(),
+      },
       return_url: `${DOMAIN}/return.html?session_id={CHECKOUT_SESSION_ID}`,
     });
 

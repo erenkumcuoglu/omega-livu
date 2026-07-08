@@ -220,6 +220,41 @@ body {
 .checkout-consent a { color: var(--brand); font-weight: 700; text-decoration: none; }
 .checkout-consent a:hover { text-decoration: underline; }
 
+/* Consent checkbox (point-of-sale) */
+.consent-check {
+  display: flex; align-items: flex-start; gap: 10px;
+  margin-top: 12px; padding: 12px 14px; cursor: pointer;
+  background: var(--bg); border: 1.5px solid var(--line); border-radius: var(--radius-sm);
+  transition: border-color .16s, background .16s;
+  user-select: none;
+}
+.consent-check:hover { border-color: var(--brand-100); }
+.consent-check input { position: absolute; opacity: 0; width: 0; height: 0; }
+.consent-box {
+  flex: none; width: 22px; height: 22px; margin-top: 1px;
+  border: 1.5px solid var(--muted); border-radius: 7px; background: #fff;
+  display: grid; place-items: center; color: #fff; transition: .16s;
+}
+.consent-box svg { opacity: 0; transform: scale(.5); transition: .16s; }
+.consent-check input:checked ~ .consent-box {
+  background: var(--brand); border-color: var(--brand);
+}
+.consent-check input:checked ~ .consent-box svg { opacity: 1; transform: scale(1); }
+.consent-check input:focus-visible ~ .consent-box { box-shadow: 0 0 0 4px var(--brand-50); }
+.consent-check:has(input:checked) { border-color: var(--brand); background: #fff; }
+.consent-text { font-size: 12.3px; color: var(--ink-2); line-height: 1.5; }
+.consent-text strong { color: var(--ink); }
+.consent-text a { color: var(--brand); font-weight: 700; text-decoration: none; }
+.consent-text a:hover { text-decoration: underline; }
+.consent-check.shake {
+  animation: shake .5s; border-color: #e5484d;
+}
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-6px); }
+  40%, 80% { transform: translateX(6px); }
+}
+
 .spacer { height: 8px; }
 
 /* Sticky checkout */
