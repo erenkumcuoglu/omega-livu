@@ -124,8 +124,10 @@ app.post("/api/support", async (req, res) => {
   if (!firstName || !lastName || !email || !phone || !issue) {
     return res.status(400).json({ error: "Zorunlu alanlar eksik." });
   }
-  // TODO: forward to your ticketing system / email (e.g. customer.service@livuchat.com).
-  console.log("📨 New support request:", req.body);
+  // In production (Netlify) this is emailed to Omega support via
+  // netlify/functions/support.js. For local dev we just log it.
+  const to = process.env.SUPPORT_EMAIL || "eren@omegadijital.com";
+  console.log(`📨 New support request → ${to}:`, req.body);
   res.json({ ok: true });
 });
 

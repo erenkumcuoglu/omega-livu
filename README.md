@@ -102,7 +102,14 @@ netlify dev            # public/ + functions birlikte, redirect’lerle
 6. `checkout.session.completed` webhook’u ödeme onaylandığında coin’leri ilgili LivU ID’ye tanımlamak için kullanılır (`netlify/functions/webhook.js` ve `server.js` içinde `TODO`).
 
 ## Müşteri hizmetleri
-Alt bilgideki **Müşteri Hizmetleri** butonu; isim, soyisim, e-posta, telefon, hesap bilgisi (LivU ID), işlem ID ve sorun tanımı içeren bir form açar. Form `POST /api/support` uç noktasına gönderilir (kendi ticket/e-posta sisteminize bağlayın). Doğrudan e-posta: `customer.service@livuchat.com`.
+Alt bilgideki **Müşteri Hizmetleri** butonu; isim, soyisim, e-posta, telefon, hesap bilgisi (LivU ID), işlem ID ve sorun tanımı içeren bir form açar. Form `POST /api/support` uç noktasına gönderilir ve **Omega destek** (`eren@omegadijital.com`) adresine e-postalanır. Doğrudan e-posta: `eren@omegadijital.com`.
+
+**E-posta teslimatını açmak (Resend):** `netlify/functions/support.js`, [Resend](https://resend.com) üzerinden e-posta gönderir. Netlify ortam değişkenlerine ekleyin:
+- `RESEND_API_KEY` = `re_...` (Resend hesabından; ücretsiz katman var)
+- `SUPPORT_EMAIL` = `eren@omegadijital.com` (varsayılan; teslim adresi)
+- `SUPPORT_FROM` = `Omega Destek <destek@omegadijital.com>` (Resend’de **omegadijital.com** alan adını doğruladıktan sonra; doğrulayana kadar `onboarding@resend.dev` kullanın)
+
+`RESEND_API_KEY` tanımlı değilse form yine çalışır, gönderim Netlify function loglarına yazılır (e-posta gitmez).
 
 ## Notlar
 - Marka rengi: `#6b10ff` · Slogan: *Be lively & Be happy*
