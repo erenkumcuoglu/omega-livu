@@ -416,6 +416,17 @@ body {
 }
 .callout p:last-child { margin-bottom: 0; }
 
+.seller-box {
+  background: var(--brand-50); border: 1px solid var(--brand-100);
+  border-radius: var(--radius); padding: 18px 20px; margin-bottom: 18px;
+}
+.seller-box h2 { font-size: 16px; font-weight: 800; color: var(--brand-700); margin-bottom: 10px; }
+.seller-box p { font-size: 13.5px; color: var(--ink-2); line-height: 1.6; margin-bottom: 10px; }
+.seller-box p:last-child { margin-bottom: 0; }
+.seller-box strong { color: var(--ink); }
+.seller-box a { color: var(--brand); font-weight: 600; text-decoration: none; }
+.seller-box a:hover { text-decoration: underline; }
+
 /* ---------- Embedded Checkout modal ---------- */
 .checkout-modal { max-width: 520px; }
 .checkout-modal .modal-head { margin-bottom: 16px; }
