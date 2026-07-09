@@ -46,6 +46,7 @@ app.post("/api/webhook", express.raw({ type: "application/json" }), (req, res) =
 });
 
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(express.static(PUBLIC_DIR));
 
 // Publishable key for the client (safe to expose). Empty unless a real pk_ is set.
@@ -119,15 +120,10 @@ app.get("/api/session-status", async (req, res) => {
   }
 });
 
-app.post("/api/support", async (req, res) => {
-  const { firstName, lastName, email, phone, issue } = req.body || {};
-  if (!firstName || !lastName || !email || !phone || !issue) {
-    return res.status(400).json({ error: "Zorunlu alanlar eksik." });
-  }
-  // In production (Netlify) this is emailed to Omega support via
-  // netlify/functions/support.js. For local dev we just log it.
-  const to = process.env.SUPPORT_EMAIL || "eren@omegadijital.com";
-  console.log(`📨 New support request → ${to}:`, req.body);
+// The customer-service form uses Netlify Forms in production (POSTs to "/").
+// Locally there is no Forms backend, so accept the POST and just log it.
+app.post("/", (req, res) => {
+  console.log("📨 Support form (local dev, not emailed):", req.body);
   res.json({ ok: true });
 });
 

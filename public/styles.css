@@ -332,6 +332,7 @@ body {
 .modal-head .muted { font-size: 13px; margin-top: 4px; }
 
 .support-form { display: flex; flex-direction: column; gap: 14px; }
+.hp-field { display: none !important; }
 .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 @media (max-width: 400px) { .grid-2 { grid-template-columns: 1fr; } }
 .form-field input, .form-field textarea {

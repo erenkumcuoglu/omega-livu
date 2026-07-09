@@ -23,10 +23,9 @@
   to = "/.netlify/functions/session-status"
   status = 200
 
-[[redirects]]
-  from = "/api/support"
-  to = "/.netlify/functions/support"
-  status = 200
+# Customer-service form uses Netlify Forms (see the <form name="support"> in
+# index.html) — no function needed; notifications are configured in the
+# Netlify UI (Forms → notifications → eren@omegadijital.com).
 
 [[redirects]]
   from = "/api/webhook"

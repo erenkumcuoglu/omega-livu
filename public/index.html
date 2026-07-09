@@ -153,7 +153,10 @@
         <p class="muted">Sorununuzu iletin, en kısa sürede dönüş yapalım.</p>
       </div>
 
-      <form id="supportForm" class="support-form" novalidate>
+      <form id="supportForm" class="support-form" name="support" method="POST"
+            data-netlify="true" netlify-honeypot="bot-field" novalidate>
+        <input type="hidden" name="form-name" value="support" />
+        <p class="hp-field" hidden><label>Boş bırakın: <input name="bot-field" /></label></p>
         <div class="grid-2">
           <div class="form-field">
             <label for="firstName">İsim</label>

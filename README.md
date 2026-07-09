@@ -14,7 +14,7 @@ livuchat.com yükleme sayfasının modern, mobil öncelikli ve **yalnızca kredi
 | `public/return.html` | Ödeme sonrası dönüş/sonuç sayfası |
 | `public/assets/` | LivU logosu, Visa/Mastercard ve coin görselleri |
 | `packages.js` | Paket & fiyatların tek doğruluk kaynağı (sunucu tarafı) |
-| `netlify/functions/` | Serverless API (Netlify prod): config, create-checkout-session, session-status, support, webhook |
+| `netlify/functions/` | Serverless API (Netlify prod): config, create-checkout-session, session-status, webhook |
 | `server.js` | **Lokal geliştirme** için Express backend (aynı uçlar) |
 | `netlify.toml` | Netlify publish/functions/redirect yapılandırması |
 
@@ -102,14 +102,14 @@ netlify dev            # public/ + functions birlikte, redirect’lerle
 6. `checkout.session.completed` webhook’u ödeme onaylandığında coin’leri ilgili LivU ID’ye tanımlamak için kullanılır (`netlify/functions/webhook.js` ve `server.js` içinde `TODO`).
 
 ## Müşteri hizmetleri
-Alt bilgideki **Müşteri Hizmetleri** butonu; isim, soyisim, e-posta, telefon, hesap bilgisi (LivU ID), işlem ID ve sorun tanımı içeren bir form açar. Form `POST /api/support` uç noktasına gönderilir ve **Omega destek** (`eren@omegadijital.com`) adresine e-postalanır. Doğrudan e-posta: `eren@omegadijital.com`.
+Alt bilgideki **Müşteri Hizmetleri** butonu; isim, soyisim, e-posta, telefon, hesap bilgisi (LivU ID), işlem ID ve sorun tanımı içeren bir form açar. Form **Netlify Forms** ile toplanır (ekstra servis/anahtar gerekmez) ve Netlify submission’ı `eren@omegadijital.com`’a **bildirim e-postası** olarak gönderir. Doğrudan e-posta: `eren@omegadijital.com`.
 
-**E-posta teslimatını açmak (Resend):** `netlify/functions/support.js`, [Resend](https://resend.com) üzerinden e-posta gönderir. Netlify ortam değişkenlerine ekleyin:
-- `RESEND_API_KEY` = `re_...` (Resend hesabından; ücretsiz katman var)
-- `SUPPORT_EMAIL` = `eren@omegadijital.com` (varsayılan; teslim adresi)
-- `SUPPORT_FROM` = `Omega Destek <destek@omegadijital.com>` (Resend’de **omegadijital.com** alan adını doğruladıktan sonra; doğrulayana kadar `onboarding@resend.dev` kullanın)
+**Netlify Forms kurulumu (tek seferlik, panelden):**
+1. Formun tanınması otomatiktir — `public/index.html` içinde `<form name="support" data-netlify="true">` mevcut. İlk deploy’dan sonra Netlify formu keşfeder.
+2. Netlify → **Forms** sekmesine gidin → `support` formunu görün.
+3. **Forms → Settings & notifications → Add notification → Email notification** → alıcı olarak `eren@omegadijital.com` girin.
 
-`RESEND_API_KEY` tanımlı değilse form yine çalışır, gönderim Netlify function loglarına yazılır (e-posta gitmez).
+> Not: Netlify Forms yalnızca **canlı Netlify deploy’unda** çalışır; lokal `npm start`’ta form gönderimi yalnızca sunucu loglarına yazılır (e-posta gitmez).
 
 ## Notlar
 - Marka rengi: `#6b10ff` · Slogan: *Be lively & Be happy*

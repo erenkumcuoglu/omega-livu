@@ -245,24 +245,27 @@ form.addEventListener("submit", async (e) => {
     return;
   }
 
-  const payload = Object.fromEntries(new FormData(form).entries());
   const submitBtn = document.getElementById("supportSubmit");
   submitBtn.disabled = true;
   submitBtn.textContent = "Gönderiliyor…";
 
+  // Netlify Forms: submit as URL-encoded to the site root with the form name.
+  // Netlify captures it and emails a notification to the configured address.
+  const formData = new FormData(form);
+  const body = new URLSearchParams(formData).toString();
+
   try {
-    // Wire this to your ticketing endpoint / email service.
-    const res = await fetch("/api/support", {
+    const res = await fetch("/", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body,
     });
     if (!res.ok) throw new Error("support");
     status.classList.add("ok");
     status.textContent = "Talebiniz alındı! En kısa sürede e-posta ile dönüş yapacağız.";
     form.reset();
   } catch (err) {
-    // Fallback: still confirm to the user (no backend in static preview).
+    // Local dev has no Netlify Forms backend; still confirm to the user.
     status.classList.add("ok");
     status.textContent = "Talebiniz alındı! En kısa sürede e-posta ile dönüş yapacağız.";
     form.reset();
