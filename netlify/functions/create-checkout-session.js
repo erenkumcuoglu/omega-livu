@@ -18,11 +18,12 @@ exports.handler = async (event) => {
 
   try {
     const stripe = Stripe(key);
-    const { packageId, livuId, consent, consentAt } = JSON.parse(event.body || "{}");
+    const { packageId, livuId, consent, fxConsent, consentAt } = JSON.parse(event.body || "{}");
     const pkg = PACKAGES[packageId];
     if (!pkg) return json(400, { error: "Geçersiz paket." });
     if (!livuId) return json(400, { error: "LivU ID gerekli." });
     if (consent !== true) return json(400, { error: "İade koşulları kabul edilmedi." });
+    if (fxConsent !== true) return json(400, { error: "Banka ek ücret koşulu kabul edilmedi." });
 
     // Build absolute return URL from the incoming request origin.
     const origin =
@@ -51,6 +52,7 @@ exports.handler = async (event) => {
         livuId,
         coins: String(pkg.amount),
         consent: "accepted",
+        fx_consent: "accepted",
         consent_at: consentAt || new Date().toISOString(),
       },
       return_url: `${origin}/return.html?session_id={CHECKOUT_SESSION_ID}`,

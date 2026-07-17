@@ -77,6 +77,13 @@ function updateCheckout() {
   coinHint.textContent = `${num.format(selected.amount)} coin`;
   payBtn.disabled = false;
   bar.classList.add("show");
+
+  // Estimated statement range: our price up to +3% possible bank markup.
+  const fxHigh = Math.ceil(selected.price * 1.03);
+  const fxPrice = document.getElementById("fxOurPrice");
+  const fxRange = document.getElementById("fxRange");
+  if (fxPrice) fxPrice.textContent = tl.format(selected.price);
+  if (fxRange) fxRange.textContent = `${tl.format(selected.price)} – ${tl.format(fxHigh)}`;
 }
 
 /* ---------- Toast ---------- */
@@ -136,13 +143,22 @@ payBtn.addEventListener("click", async () => {
     return;
   }
 
-  const consent = document.getElementById("consentCheck");
-  if (!consent.checked) {
-    showToast("Devam etmek için iade koşullarını kabul edin.");
-    const box = document.getElementById("consentBox");
+  const nudge = (boxId, msg) => {
+    showToast(msg);
+    const box = document.getElementById(boxId);
     box.scrollIntoView({ behavior: "smooth", block: "center" });
     box.classList.add("shake");
     setTimeout(() => box.classList.remove("shake"), 700);
+  };
+
+  const consent = document.getElementById("consentCheck");
+  if (!consent.checked) {
+    nudge("consentBox", "Devam etmek için iade koşullarını kabul edin.");
+    return;
+  }
+  const fxConsent = document.getElementById("fxConsentCheck");
+  if (!fxConsent.checked) {
+    nudge("fxConsentBox", "Devam etmek için olası banka ek ücretini kabul edin.");
     return;
   }
   const consentAt = new Date().toISOString();
@@ -161,7 +177,7 @@ payBtn.addEventListener("click", async () => {
       const res = await fetch("/api/create-checkout-session", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ packageId: selected.id, livuId, consent: true, consentAt }),
+        body: JSON.stringify({ packageId: selected.id, livuId, consent: true, fxConsent: true, consentAt }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.error || "Ödeme oturumu oluşturulamadı.");
